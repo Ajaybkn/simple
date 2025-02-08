@@ -31,8 +31,8 @@ jobs:
 
       # Log in to Amazon ECR
       - name: Log in to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       # Use Node.js ${{ matrix.node-version }} and build
       - name: Use Node.js ${{ matrix.node-version }}
@@ -46,15 +46,11 @@ jobs:
 
       # Build Docker image
       - name: Build Docker image
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
+          ECR_REPOSITORY: simple
+          IMAGE_TAG: latest
         run: |
-          docker build -t my-app:${{ github.sha }} .
-
-      # Tag Docker image for ECR
-      - name: Tag Docker image
-        run: |
-          docker tag my-app:${{ github.sha }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-repository:${{ github.sha }}
-
-      # Push Docker image to ECR
-      - name: Push Docker image to ECR
-        run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/my-repository:${{ github.sha }}
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
