@@ -1,3 +1,6 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code, and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
 name: Node.js CI
 
 on:
@@ -41,33 +44,13 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
 
-      # Get the last version tag from Git
-      - name: Get version tag from Git
-        id: version-tag
-        run: |
-          VERSION=$(git tag --sort=-v:refname | grep -oP 'v\d+' | head -n 1)
-          if [ -z "$VERSION" ]; then
-            VERSION="v0"
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      # Increment version tag for new builds
-      - name: Increment version
-        id: increment-version
-        run: |
-          VERSION_NUMBER=${{ env.VERSION//v/ }}
-          VERSION_NUMBER=$((VERSION_NUMBER + 1))
-          VERSION="v$VERSION_NUMBER"
-          echo "New version tag is $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
       # Build Docker image
       - name: Build Docker image
         id: build-image
         env:
           ECR_REGISTRY: ${{steps.login-ecr.outputs.registry}}
           ECR_REPOSITORY: simple
-          IMAGE_TAG: ${{ env.VERSION }}
+          IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
