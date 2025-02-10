@@ -53,13 +53,13 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       # Step 1: Update ECS Service to Use the New Image
-      - name: Update ECS Service
-        run: |
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} \
-            --service ${{ secrets.ECS_SERVICE }} \
-            --force-new-deployment \
-            --region ${{ secrets.AWS_REGION }} \
-            --image ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+     # - name: Update ECS Service
+      #  run: |
+       #   aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} \
+         #   --service ${{ secrets.ECS_SERVICE }} \
+         #   --force-new-deployment \
+         #   --region ${{ secrets.AWS_REGION }} \
+          #  --image ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
 
       # Optional: Step 2: Update Route 53 DNS record (if necessary)
       # This step is only needed if you want to automate DNS updates, but usually, this is only necessary for specific configurations.
