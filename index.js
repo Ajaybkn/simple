@@ -5,6 +5,8 @@ const port = 3000;
 
 console.log("hello");
 console.log("new");
+console.log("new");
+
 app.get("/", (req, res) => {
 	res.send("Hello heyy World from Node.js in Docker hello! ");
 });
